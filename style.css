@@ -1,0 +1,44 @@
+body {
+  font: 14px "Century Gothic", Futura, sans-serif;
+  margin: 20px;
+}
+
+p {
+  width: 50%;
+}
+
+input {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+
+.lift-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+
+.square {
+  background: #fff;
+  border: 1px solid #999;
+  float: left;
+  font-size: 24px;
+  font-weight: bold;
+  line-height: 34px;
+  height: 34px;
+  margin-right: -1px;
+  margin-top: -1px;
+  padding: 0;
+  text-align: center;
+  width: 100px;
+}
+
+
+.lifts {
+  display: flex;
+  flex-direction: row;
+}
+
+

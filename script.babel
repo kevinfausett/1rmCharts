@@ -1,0 +1,161 @@
+//controlled form?
+class Repmax extends React.Component {
+  render() {
+    return (
+      <div>
+        <div className="square">
+          {this.props.reps}
+        </div>
+        <input className="square" type="number" defaultValue={this.props.weight} onChange={(evt) => this.props.onChange(evt)} />
+        <div className="square">
+          {this.props.max}
+        </div>
+      </div>
+    );
+  }
+}
+
+class Lift extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      name: props.name,
+      rows: props.reps,
+      weight: Array(Number(props.reps)).fill(0),
+      max: Array(Number(props.reps)).fill(0),
+      best: 0,
+      worst: 1
+    }
+  }
+  render() {
+    const liftrows = [];
+    for (let i = 0; i < this.state.rows; i++) {
+      liftrows.push(        
+        <div className="lift-row" key={i}>
+          {this.renderRepmax(i)}
+        </div>
+      )
+    }
+    return (
+      <div>
+        <h2>Best {this.state.name}: {this.state.max[this.state.best]} via {this.state.weight[this.state.best]} x {this.state.best+1}</h2>
+        <div className="square">Reps</div>
+        <div className="square">Weight</div>
+        <div className="square">Max</div>
+        {liftrows}
+
+        <div>
+          Weak Rep Range: {this.state.worst} </div>
+        </div>
+    );
+   }
+  
+  renderRepmax(reps) {
+    return <Repmax reps={reps+1} weight={this.state.weight[reps]} max = {this.state.max[reps]}
+             onChange={(evt) => this.handleChange(Number(reps), Number(evt.target.value))}/>;
+  }
+  
+  calcMax(index, weight) {
+    if (index > 0) {
+    const maxScore = parseInt((index + 1) * weight / 30) + parseInt(weight);
+      return !isNaN(maxScore) ? maxScore : 0;
+    }
+    else {
+      return weight;
+    }
+  }
+  
+  handleChange(reps, newWeight) {
+    max = this.calcMax(reps, newWeight);
+    if (max > this.state.max[this.state.best]) {
+      this.state.best = reps;
+      this.state.weight[reps] = newWeight;
+      this.state.max[reps] = max;
+    }
+    else if (reps === this.state.best) {
+      this.state.weight[reps] = newWeight;
+      this.state.max[reps] = max;
+      this.state.best = this.state.max.indexOf(Math.max(...this.state.max));
+    }
+    else {
+      this.state.weight[reps] = newWeight;
+      this.state.max[reps] = max;
+    }
+    this.state.worst = this.state.max.indexOf(Math.min(...this.state.max))+1
+
+    this.setState({weight: this.state.weight, max: this.state.max, best: this.state.best, worst: this.state.worst});
+  }
+}
+
+class Lifts extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      lifts: [],
+      newLift: '',
+      newReps: 1,
+    };
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleLiftChange = this.handleLiftChange.bind(this);
+    this.handleRepsChange = this.handleRepsChange.bind(this);
+  }
+    handleSubmit(event) {
+      const newLift = this.state.newLift;
+      const newReps = this.state.newReps;
+      this.setState({
+        lifts: this.state.lifts.concat({lift: newLift, reps: newReps}),
+        newLift: '',
+      });
+      alert('Added ' + newLift + ' for reps of up to ' + newReps);
+      event.preventDefault();
+    }
+  
+  handleLiftChange(event) {
+    this.setState({
+      lifts: this.state.lifts,
+      newLift: event.target.value
+    });
+  }
+  
+  handleRepsChange(event) {
+    this.setState({
+      newReps: event.target.value
+    });
+  }
+  
+  render() {
+    return (
+      <div>
+        <div>
+          <h2>Instructions</h2>
+          <p>Enter the name of the lifting movement you want to estimate your one rep max for and the highest number of reps you have completed in a set of that exercise. When you submit, a chart will appear that will tell you an estimation of your one rep max for completing a given number of reps at the weight you select.</p>
+        </div>
+        <div>
+          <h2>Add New Exercise</h2>
+          <form onSubmit={this.handleSubmit}>
+            <div>
+              Lift: <input type="text" name="newLift" onChange={this.handleLiftChange} /> 
+            </div>
+            <div>
+              Reps: <input type="number" name="newLift" onChange={this.handleRepsChange} />
+            </div>
+            <div>
+              <input type="submit" value="Submit" className="submit"/>
+            </div>
+          </form>
+        </div>
+        <div>
+          {this.state.lifts.map((lift) => {
+            return <div className="lifts" key={lift.lift}><Lift name={lift.lift} reps = {lift.reps} key={lift.lift}/></div>})}
+        </div>
+      </div>
+    );
+  }
+}
+
+// ========================================
+
+ReactDOM.render(
+  <Lifts />,
+  document.getElementById('root')
+);
