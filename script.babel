@@ -1,4 +1,3 @@
-//controlled form?
 class Repmax extends React.Component {
   render() {
     return (
